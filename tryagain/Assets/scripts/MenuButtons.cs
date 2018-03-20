@@ -10,6 +10,11 @@ public class MenuButtons : MonoBehaviour
     public GameObject TutorialMenu;
     public GameObject playMenu;
 
+    public GameObject GameSettings;
+    public GameObject AudioSettings;
+    public GameObject videoSettings;
+
+
     private void Awake()
     {
 
