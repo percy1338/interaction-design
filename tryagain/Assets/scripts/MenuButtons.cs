@@ -7,6 +7,8 @@ public class MenuButtons : MonoBehaviour
     public GameObject mainMenu;
     public GameObject optionsMenu;
     public GameObject creditMenu;
+    public GameObject TutorialMenu;
+    public GameObject playMenu;
 
     private void Awake()
     {
@@ -18,6 +20,8 @@ public class MenuButtons : MonoBehaviour
         mainMenu.SetActive(true);
         optionsMenu.SetActive(false);
         creditMenu.SetActive(false);
+        playMenu.SetActive(false);
+        TutorialMenu.SetActive(false);
     }
 	
 
@@ -31,7 +35,27 @@ public class MenuButtons : MonoBehaviour
         mainMenu.SetActive(true);
         optionsMenu.SetActive(false);
         creditMenu.SetActive(false);
+        playMenu.SetActive(false);
+        TutorialMenu.SetActive(false);
 
+    }
+
+    public void StartGameMenu()
+    {
+        mainMenu.SetActive(false);
+        optionsMenu.SetActive(false);
+        creditMenu.SetActive(false);
+        playMenu.SetActive(true);
+        TutorialMenu.SetActive(false);
+    }
+
+    public void Tutorialmenu()
+    {
+        mainMenu.SetActive(false);
+        optionsMenu.SetActive(false);
+        creditMenu.SetActive(false);
+        playMenu.SetActive(false);
+        TutorialMenu.SetActive(true);
     }
 
     public void StartGame()
@@ -45,12 +69,16 @@ public class MenuButtons : MonoBehaviour
         mainMenu.SetActive(false);
         optionsMenu.SetActive(true);
         creditMenu.SetActive(false);
+        playMenu.SetActive(false);
+        TutorialMenu.SetActive(false);
     }
     public void GameCredits()
     {
         mainMenu.SetActive(false);
         optionsMenu.SetActive(false);
         creditMenu.SetActive(true);
+        playMenu.SetActive(false);
+        TutorialMenu.SetActive(false);
     }
 
     public void ExitGame()
