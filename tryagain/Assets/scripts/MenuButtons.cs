@@ -89,5 +89,11 @@ public class MenuButtons : MonoBehaviour
     public void ExitGame()
     {
         Debug.Log("exit");
+        Application.Quit();
+    }
+
+    public void ChangeResolution(int res)
+    {
+        Screen.SetResolution(res*200+100, res*200+100,true);
     }
 }

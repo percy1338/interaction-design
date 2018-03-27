@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2017
+# Visual Studio 2015
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tryagain", "tryagain.csproj", "{66915807-5E6D-38A5-EDC6-EB3CBE3776B0}"
 EndProject
 Global
