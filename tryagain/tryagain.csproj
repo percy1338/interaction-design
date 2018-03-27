@@ -285,6 +285,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\scripts\BobbingImage.cs" />
     <Compile Include="Assets\scripts\Game.cs" />
     <Compile Include="Assets\scripts\MenuButtons.cs" />
     <Compile Include="Assets\scripts\Options.cs" />

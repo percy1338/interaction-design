@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MenuButtons : MonoBehaviour
 {
+    public GameObject Background;
+
     public GameObject mainMenu;
     public GameObject optionsMenu;
     public GameObject creditMenu;
@@ -14,6 +16,13 @@ public class MenuButtons : MonoBehaviour
     public GameObject AudioSettings;
     public GameObject videoSettings;
 
+    public int MenuSwitchSpeed;
+    public bool SmoothMenuSwitch;
+    private bool switchingMenu = false;
+    private GameObject currentMenu;
+    private GameObject newMenu;
+    private int direction;
+
 
     private void Awake()
     {
@@ -23,6 +32,7 @@ public class MenuButtons : MonoBehaviour
     void Start ()
     {
         mainMenu.SetActive(true);
+        currentMenu = mainMenu;
         optionsMenu.SetActive(false);
         creditMenu.SetActive(false);
         playMenu.SetActive(false);
@@ -32,35 +42,55 @@ public class MenuButtons : MonoBehaviour
 
 	void Update ()
     {
-		
-	}
+        if (switchingMenu)
+        {
+            if (SmoothMenuSwitch)
+            {
+                currentMenu.transform.position += new Vector3(direction * ((Mathf.Abs(newMenu.transform.localPosition.x) / Screen.width) + 0.2f) * MenuSwitchSpeed, 0, 0);
+                newMenu.transform.position += new Vector3(direction * ((Mathf.Abs(newMenu.transform.localPosition.x) / Screen.width) + 0.2f) * MenuSwitchSpeed, 0, 0);
+                Background.transform.position += new Vector3((direction * ((Mathf.Abs(newMenu.transform.localPosition.x) / Screen.width) + 0.2f) * MenuSwitchSpeed) * 0.12f, 0, 0);
+            }
+            else
+            {
+                currentMenu.transform.position += new Vector3(direction * MenuSwitchSpeed, 0, 0);
+                newMenu.transform.position += new Vector3(direction * MenuSwitchSpeed, 0, 0);
+                Background.transform.position += new Vector3((direction * MenuSwitchSpeed) * 0.12f, 0, 0);
+            }
+            if (Mathf.Abs(currentMenu.transform.localPosition.x) >= Screen.width)
+            {
+                newMenu.transform.position = new Vector3(0, 1, 90);
+                currentMenu.SetActive(false);
+                currentMenu = newMenu;
+                newMenu = null;
+                switchingMenu = false;
+            }
+        }
+    }
+
+    void changeMenu(GameObject pNewMenu, int pDirection)
+    {
+        if (!switchingMenu) {
+            newMenu = pNewMenu;
+            newMenu.SetActive(true);
+            newMenu.transform.localPosition = currentMenu.transform.localPosition - new Vector3(Screen.width * pDirection, 0, 0);
+            direction = pDirection;
+            switchingMenu = true;
+        }
+    }
 
     public void MainMenu()
     {
-        mainMenu.SetActive(true);
-        optionsMenu.SetActive(false);
-        creditMenu.SetActive(false);
-        playMenu.SetActive(false);
-        TutorialMenu.SetActive(false);
-
+        changeMenu(mainMenu, 1);
     }
 
-    public void StartGameMenu()
+    public void StartGameMenu(int dir)
     {
-        mainMenu.SetActive(false);
-        optionsMenu.SetActive(false);
-        creditMenu.SetActive(false);
-        playMenu.SetActive(true);
-        TutorialMenu.SetActive(false);
+        changeMenu(playMenu, dir);
     }
 
     public void Tutorialmenu()
     {
-        mainMenu.SetActive(false);
-        optionsMenu.SetActive(false);
-        creditMenu.SetActive(false);
-        playMenu.SetActive(false);
-        TutorialMenu.SetActive(true);
+        changeMenu(TutorialMenu, -1);
     }
 
     public void StartGame()
@@ -71,19 +101,11 @@ public class MenuButtons : MonoBehaviour
 
     public void GameOptions()
     {
-        mainMenu.SetActive(false);
-        optionsMenu.SetActive(true);
-        creditMenu.SetActive(false);
-        playMenu.SetActive(false);
-        TutorialMenu.SetActive(false);
+        changeMenu(optionsMenu, -1);
     }
     public void GameCredits()
     {
-        mainMenu.SetActive(false);
-        optionsMenu.SetActive(false);
-        creditMenu.SetActive(true);
-        playMenu.SetActive(false);
-        TutorialMenu.SetActive(false);
+        changeMenu(creditMenu, -1);
     }
 
     public void ExitGame()
