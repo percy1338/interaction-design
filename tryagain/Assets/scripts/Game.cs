@@ -69,6 +69,10 @@ public class Game : MonoBehaviour
                 }
             }
         }
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            ToResolutionScreen();
+        }
         if (!_paused) {
             if (Input.GetKeyDown(KeyCode.Mouse2))
             {
@@ -251,6 +255,21 @@ public class Game : MonoBehaviour
             fadeInAndOut = false;
             FadeScreen(true);
             FadeEvent += RestartLevel;
+        }
+    }
+
+    public void ToResolutionScreen()
+    {
+        if (isFading == FadeState.active)
+        {
+            Application.LoadLevel(2);
+            Debug.Log("going to resolution screen");
+        }
+        else if (isFading == FadeState.faded)
+        {
+            fadeInAndOut = false;
+            FadeScreen(true);
+            FadeEvent += ToResolutionScreen;
         }
     }
 
