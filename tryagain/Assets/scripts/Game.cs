@@ -1,9 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Game : MonoBehaviour
 {
+    public CanvasRenderer Fade;
+    private UnityAction FadeEvent;
+    private List<GameObject> objectsToFade = new List<GameObject>();
+    private bool fadeInAndOut = false;
+
+    public GameObject startScreen;
     public GameObject gameMenu;
     public GameObject optionsMenu;
     public GameObject gameSettings;
@@ -19,14 +26,27 @@ public class Game : MonoBehaviour
     public GameObject HalfHealth;
 
     private bool _paused;
-
-	// Use this for initialization
-	void Start ()
+    private float fadeTime = 0.5f;
+    private enum FadeState
     {
+        faded,
+        fadingIn,
+        active,
+        fadingOut
+    }
+    private FadeState isFading = FadeState.fadingOut;
+
+    // Use this for initialization
+    void Start ()
+    {
+        startScreen.SetActive(true);
+        _paused = true;
         gameMenu.SetActive(false);
         gameSettings.SetActive(false);
         videoSettings.SetActive(false);
         audioSettings.SetActive(false);
+        Fade.SetAlpha(1);
+        Fade.gameObject.SetActive(true);
     }
 	
 	// Update is called once per frame
@@ -43,6 +63,10 @@ public class Game : MonoBehaviour
             else
             {
                 CloseMenu();
+                if (startScreen.activeSelf)
+                {
+                    ToggleStartScreen(false);
+                }
             }
         }
         if (!_paused) {
@@ -62,6 +86,85 @@ public class Game : MonoBehaviour
                 HalfHealth.SetActive(!HalfHealth.activeSelf);
             }
         }
+
+        if (isFading == FadeState.fadingIn)
+        {
+            if (!Fade.gameObject.activeSelf)
+            {
+                Fade.gameObject.SetActive(true);
+                Fade.SetAlpha(0);
+            }
+            Fade.SetAlpha(Fade.GetAlpha() + ((1 / fadeTime) * Time.deltaTime));
+            if (Fade.GetAlpha() >= 1)
+            {
+                isFading = FadeState.active;
+                Fade.SetAlpha(1);
+                FadeEvent += handleObjectsToFadeList;
+                FadeEvent.Invoke();
+                emptyFadeEvent();
+                if (fadeInAndOut)
+                {
+                    isFading = FadeState.fadingOut;
+                }
+            }
+        }
+        else if (isFading == FadeState.fadingOut)
+        {
+            Fade.SetAlpha(Fade.GetAlpha() - ((1 / fadeTime) * Time.deltaTime));
+            if (Fade.GetAlpha() <= 0)
+            {
+                isFading = FadeState.faded;
+                Fade.SetAlpha(0);
+                Fade.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void ToggleStartScreen(bool toggle)
+    {
+        if (!toggle)
+        {
+            //isFading = FadeState.fadingIn;
+            objectsToFade.Add(startScreen);
+            fadeInAndOut = true;
+            FadeScreen(true);
+            _paused = false;
+        }
+        else
+        {
+            //startScreen.SetActive(true);
+            objectsToFade.Add(startScreen);
+            fadeInAndOut = true;
+            FadeScreen(true);
+            _paused = true;
+        }
+    }
+
+    public void FadeScreen(bool toggle)
+    {
+        if (!toggle)
+        {
+            isFading = FadeState.fadingOut;
+        }
+        else
+        {
+            isFading = FadeState.fadingIn;
+        }
+    }
+    private void emptyFadeEvent()
+    {
+        for (int i = 0; i < FadeEvent.GetInvocationList().Length; i++)
+        {
+            FadeEvent.GetInvocationList()[i] = null;
+        }
+    }
+    private void handleObjectsToFadeList()
+    {
+        for (int i = 0; i < objectsToFade.Count; i++)
+        {
+            objectsToFade[i].SetActive(!objectsToFade[i].activeSelf);
+        }
+        objectsToFade.Clear();
     }
 
     public void OpenMenu()
@@ -123,14 +226,32 @@ public class Game : MonoBehaviour
 
     public void BackToMain()
     {
-        Application.LoadLevel(0);
-        Debug.Log("start game");
+        if (isFading == FadeState.active)
+        {
+            Application.LoadLevel(0);
+            Debug.Log("back to main");
+        }
+        else if (isFading == FadeState.faded)
+        {
+            fadeInAndOut = false;
+            FadeScreen(true);
+            FadeEvent += BackToMain;
+        }
     }
 
     public void RestartLevel()
     {
-        Application.LoadLevel(1);
-        Debug.Log("start game");
+        if (isFading == FadeState.active)
+        {
+            Application.LoadLevel(1);
+            Debug.Log("start game");
+        }
+        else if (isFading == FadeState.faded)
+        {
+            fadeInAndOut = false;
+            FadeScreen(true);
+            FadeEvent += RestartLevel;
+        }
     }
 
 }
