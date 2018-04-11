@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MenuButtons : MonoBehaviour
 {
     public GameObject Background;
+    public CanvasRenderer Fade;
+    private UnityAction FadeEvent;
 
     public GameObject mainMenu;
     public GameObject optionsMenu;
@@ -23,6 +26,16 @@ public class MenuButtons : MonoBehaviour
     private GameObject newMenu;
     private int direction;
 
+    private float fadeTime = 0.5f;
+    private enum FadeState
+    {
+        faded,
+        fadingIn,
+        active,
+        fadingOut
+    }
+    private FadeState isFading = FadeState.fadingOut;
+
 
     private void Awake()
     {
@@ -37,6 +50,8 @@ public class MenuButtons : MonoBehaviour
         creditMenu.SetActive(false);
         playMenu.SetActive(false);
         TutorialMenu.SetActive(false);
+        Fade.SetAlpha(1);
+        Fade.gameObject.SetActive(true);
     }
 	
 
@@ -65,6 +80,50 @@ public class MenuButtons : MonoBehaviour
                 switchingMenu = false;
             }
         }
+        if (isFading == FadeState.fadingIn)
+        {
+            if (!Fade.gameObject.activeSelf)
+            {
+                Fade.gameObject.SetActive(true);
+                Fade.SetAlpha(0);
+            }
+            Fade.SetAlpha(Fade.GetAlpha() + ((1 / fadeTime) * Time.deltaTime));
+            if (Fade.GetAlpha() >= 1)
+            {
+                isFading = FadeState.active;
+                Fade.SetAlpha(1);
+                FadeEvent.Invoke();
+                emptyFadeEvent();
+            }
+        }
+        else if (isFading == FadeState.fadingOut)
+        {
+            Fade.SetAlpha(Fade.GetAlpha() - ((1 / fadeTime) * Time.deltaTime));
+            if (Fade.GetAlpha() <= 0)
+            {
+                isFading = FadeState.faded;
+                Fade.SetAlpha(0);
+                Fade.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void FadeScreen(bool toggle)
+    {
+        if (!toggle)
+        {
+            isFading = FadeState.fadingOut;
+        } else
+        {
+            isFading = FadeState.fadingIn;
+        }
+    }
+    private void emptyFadeEvent()
+    {
+        for (int i = 0; i < FadeEvent.GetInvocationList().Length; i++)
+        {
+            FadeEvent.GetInvocationList()[i] = null;
+        }
     }
 
     void changeMenu(GameObject pNewMenu, int pDirection)
@@ -88,15 +147,26 @@ public class MenuButtons : MonoBehaviour
         changeMenu(playMenu, dir);
     }
 
-    public void Tutorialmenu()
+    public void Tutorialmenu(bool toggle)
     {
-        changeMenu(TutorialMenu, -1);
+        TutorialMenu.SetActive(toggle);
+        //VideoOptions.SetActive(false);
+        //AudioOptions.SetActive(false);
+        //changeMenu(TutorialMenu, -1);
     }
 
     public void StartGame()
     {
-        Application.LoadLevel(1);
-        Debug.Log("start game");
+        if (isFading == FadeState.active)
+        {
+            Application.LoadLevel(1);
+            Debug.Log("start game");
+        }
+        else if (isFading == FadeState.faded)
+        {
+            FadeScreen(true);
+            FadeEvent += StartGame;
+        }
     }
 
     public void GameOptions()

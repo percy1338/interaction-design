@@ -23,7 +23,7 @@ public class BobbingImage : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Time.time >= BobDelay)
+        if (Time.timeSinceLevelLoad >= BobDelay)
         {
             if (Time.time - prevBob >= BobInterval)
             {
